@@ -9,7 +9,6 @@ const state = {
         tempF: 84,
         tempC: 32,
         humid: 42,
-
     }
 }
 
@@ -18,24 +17,65 @@ function initPage(){
     titleText.textContent = 'Weather APP!!!!!';
     titleText.className = 'text-primary';
     htmlBody.appendChild(titleText);
+
     const titleSub = document.createElement('p');
     titleSub.textContent = 'Enter your zip code please';
     htmlBody.appendChild(titleSub);
+    
+    const inputForm = document.createElement('input');
+    inputForm.className = 'mr-3';
+    inputForm.placeholder = 'Enter your ZIP code';
+    htmlBody.appendChild(inputForm);
+
     const zipBtn = document.createElement('button');
     zipBtn.textContent = 'Get the Weather';
     zipBtn.className = 'btn btn-success';
+    zipBtn.addEventListener('click', () => {checkZip(inputForm.value)});
     htmlBody.appendChild(zipBtn);
+    
 }
 
-function converTemp(){
+function convertTemp(){
     state.weatherInfo.tempC = Math.round(state.weatherInfo.tempK - 273.15);
     state.weatherInfo.tempF = Math.round((state.weatherInfo.tempK  - 273.15) * (9/5) + 32);
 }
-
+function testPrint(){
+    for(let char of state.weatherInfo){
+        console.log(char);
+    }
+}
 // IF the API fails its call
 function errorZip(){
-
+    alert('That zip code is invalid')
 }
 
+function checkZip(zip){
+    if(isNaN(zip)){
+        errorZip();
+        return;
+    }
+    
+    else if(zip > 99950 || zip < 9999) {
+        errorZip();
+        return;
+    }
+    getData(zip);
+}
+
+async function getData(zip){
+    let url = state.API.replace('[ZIPCODE]', zip);
+    try {
+        const response = await axios.get(url);
+        state.weatherInfo.humid = response.data.main.humidity;
+        state.weatherInfo.descrtip = response.data.weather[0].description;
+        state.weatherInfo.location = response.data.name;
+        state.weatherInfo.tempK = response.data.main.temp;
+        state.weatherInfo.img = response.data.weather[0].icon;
+        convertTemp();
+    } catch (error) {
+        errorZip();
+    }
+    
+}
 
 initPage();
