@@ -45,7 +45,7 @@
 
 ### fetchData (Zipcode ,api key)
 #### &emsp; 0df3bd48560ad03c51a4637c5db0548e the API Key
-#### &emsp; Calling the API using zipcode https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid={API key}
+#### &emsp; 0df3bd48560ad03c51a4637c5db0548e
 #### &emsp; If the API fails the call then the zip code is invalid 
 #### &emsp; Uses axios to fetch the given info
 #### &emsp; returns the JSON object from the API
