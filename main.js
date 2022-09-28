@@ -13,28 +13,33 @@ const state = {
 }
 
 function initPage(){
-    // let top = document.createElement('div');
-    // top.id = 'top';
-    // top.className = 
+    let top = document.createElement('div');
+    top.id = 'top';
+    top.className = 'container-fluid justify-content-center text-center';
+    htmlBody.appendChild(top);
+    
+    let topRow = document.createElement('div');
+    topRow.className = 'row d-flex justify-content-center text-align-center p-4'
+    top.appendChild(topRow);
     const titleText = document.createElement('h1');
-    titleText.textContent = 'Weather APP!!!!!';
-    titleText.className = 'text-primary';
-    htmlBody.appendChild(titleText);
+    titleText.textContent = 'Weather APP!';
+    titleText.className = 'text-primary pb-2';
+    topRow.appendChild(titleText);
 
     const titleSub = document.createElement('p');
     titleSub.textContent = 'Enter your zip code please';
-    htmlBody.appendChild(titleSub);
+    topRow.appendChild(titleSub);
     
     const inputForm = document.createElement('input');
-    inputForm.className = 'mr-3';
+    inputForm.className = 'col-8 col-sm-4';
     inputForm.placeholder = 'Enter your ZIP code';
-    htmlBody.appendChild(inputForm);
+    topRow.appendChild(inputForm);
 
     const zipBtn = document.createElement('button');
     zipBtn.textContent = 'Get the Weather';
-    zipBtn.className = 'btn btn-success';
+    zipBtn.className = 'col-4 col-sm-2 btn btn-success';
     zipBtn.addEventListener('click', () => {checkZip(inputForm.value)});
-    htmlBody.appendChild(zipBtn);
+    topRow.appendChild(zipBtn);
     
 }
 
@@ -48,19 +53,19 @@ function testPrint(){
     }
 }
 // IF the API fails its call
-function errorZip(){
-    alert('That zip code is invalid')
-}
+// function errorZip(){
+//     alert('That zip code is invalid')
+// }
 
 function checkZip(zip){
     if(isNaN(zip)){
-        errorZip();
+        // errorZip();
         removePage();
         return;
     }
     
     else if(zip > 99950 || zip < 9999) {
-        errorZip();
+        // errorZip();
         removePage();
         return;
     }
@@ -82,7 +87,7 @@ async function getData(zip){
         updatePage();
     } catch (error) {
         removePage();
-        errorZip();
+        // errorZip();
     }
     
 }
@@ -121,6 +126,10 @@ function createHead(text, parent){
 }
 
 function updatePage(){
+    let dele = document.getElementById('errorCard');
+    if(dele != null){
+        dele.remove();
+    }
     let card = document.createElement('div');
     card.className = 'card d-flex justify-content-center text-center mt-3';
     card.id = 'card';
@@ -143,5 +152,15 @@ function removePage(){
     if(dele != null){
         dele.remove();
     }
+    dele = document.getElementById('errorCard');
+    if(dele != null){
+        dele.remove();
+    }
+    let errorCard = document.createElement('div');
+    errorCard.className = 'card d-flex justify-content-center text-center mt-3'
+    errorCard.id = 'errorCard';
+    htmlBody.appendChild(errorCard);
+    createHead('ERROR', errorCard);
+    createBox('INVALID ZIP CODE', errorCard);
 }
 initPage();
