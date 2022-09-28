@@ -6,13 +6,16 @@ const state = {
         location: '',
         descrtip: '',
         img: '',
-        tempF: 84,
-        tempC: 32,
-        humid: 42,
+        tempF: -321,
+        tempC: -12,
+        humid: -123,
     }
 }
 
 function initPage(){
+    // let top = document.createElement('div');
+    // top.id = 'top';
+    // top.className = 
     const titleText = document.createElement('h1');
     titleText.textContent = 'Weather APP!!!!!';
     titleText.className = 'text-primary';
@@ -52,11 +55,13 @@ function errorZip(){
 function checkZip(zip){
     if(isNaN(zip)){
         errorZip();
+        removePage();
         return;
     }
     
     else if(zip > 99950 || zip < 9999) {
         errorZip();
+        removePage();
         return;
     }
     getData(zip);
@@ -64,39 +69,79 @@ function checkZip(zip){
 
 async function getData(zip){
     let url = state.API.replace('[ZIPCODE]', zip);
+    console.log(zip, state.API);
     try {
+        console.log('got here');
         const response = await axios.get(url);
         state.weatherInfo.humid = response.data.main.humidity;
         state.weatherInfo.descrtip = response.data.weather[0].description;
         state.weatherInfo.location = response.data.name;
-        state.weatherInfo.tempK = response.data.main.temp;
+        state.weatherInfo.tempK = Math.round(response.data.main.temp);
         state.weatherInfo.img = response.data.weather[0].icon;
         convertTemp();
+        updatePage();
     } catch (error) {
+        removePage();
         errorZip();
     }
     
 }
 
-function createImg(parent){
-    let newImg = createElement('img');
-    newImg.src = 'http://openweathermap.org/img/wn/' + state.weatherInfo.icon + '@2x.png';
+function addTemp(text, parent){
+    let newTemp = document.createElement('div');
+    newTemp.className = 'border border-dark col-4'
+    newTemp.textContent = text;
+    parent.appendChild(newTemp);
+}
+
+function createImg(text, parent){
+    let newImg = document.createElement('img');
+    newImg.src = 'http://openweathermap.org/img/wn/' + text + '@2x.png';
     newImg.className = 'col-6 container border border-dark';
     parent.appendChild(newImg);
 }
 
-function createBox(text, parent){
-    let newBox = createElement('div');
-    newBox.className = 'container border border-dark col-6 mx-auto p-3  mb-3';
-    newBox.textContent = text;
+function createBox(text, parent, id = null){
+    let newBox = document.createElement('div');
+    newBox.className = 'container d-flex border border-dark justify-content-center col-6 p-2 mb-3';
+    if(text != null){
+        newBox.textContent = text;
+    }
+    if(id != null){
+        newBox.id = id;
+    }
     parent.appendChild(newBox);
 }
 
 function createHead(text, parent){
-    let newHead = createElement('div');
+    let newHead = document.createElement('div');
     newHead.className = 'border border-dark container-fluid bg-warning bg-gradient col-6 p-1  mt-3';
     newHead.textContent = text;
     parent.appendChild(newHead);
 }
 
+function updatePage(){
+    let card = document.createElement('div');
+    card.className = 'card d-flex justify-content-center text-center mt-3';
+    card.id = 'card';
+    htmlBody.appendChild(card);
+    createHead('City', card);
+    createBox(state.weatherInfo.location, card);
+    createHead('Temperature', card);
+    createBox(null, card, 'tempBox');
+    addTemp(state.weatherInfo.tempK + 'K', tempBox);
+    addTemp(state.weatherInfo.tempF + 'F', tempBox);
+    addTemp(state.weatherInfo.tempC + 'C', tempBox);
+    createHead('Condition', card);
+    createBox(state.weatherInfo.descrtip, card);
+    createHead('Image', card);
+    createImg(state.weatherInfo.img, card);
+}
+
+function removePage(){
+    let dele = document.getElementById('card');
+    if(dele != null){
+        dele.remove();
+    }
+}
 initPage();
