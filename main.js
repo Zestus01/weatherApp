@@ -78,4 +78,25 @@ async function getData(zip){
     
 }
 
+function createImg(parent){
+    let newImg = createElement('img');
+    newImg.src = 'http://openweathermap.org/img/wn/' + state.weatherInfo.icon + '@2x.png';
+    newImg.className = 'col-6 container border border-dark';
+    parent.appendChild(newImg);
+}
+
+function createBox(text, parent){
+    let newBox = createElement('div');
+    newBox.className = 'container border border-dark col-6 mx-auto p-3  mb-3';
+    newBox.textContent = text;
+    parent.appendChild(newBox);
+}
+
+function createHead(text, parent){
+    let newHead = createElement('div');
+    newHead.className = 'border border-dark container-fluid bg-warning bg-gradient col-6 p-1  mt-3';
+    newHead.textContent = text;
+    parent.appendChild(newHead);
+}
+
 initPage();
