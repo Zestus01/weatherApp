@@ -13,6 +13,7 @@ const state = {
     }
 }
 
+// Loads the page and hard codes the header/buttons
 function initPage(){
     let top = document.createElement('div');
     top.id = 'top';
@@ -36,13 +37,13 @@ function initPage(){
     inputForm.placeholder = 'Enter your ZIP code';
     inputForm.id = 'form';
     topRow.appendChild(inputForm);
-
+    // For if the user wants to input the zip code to get weather
     const zipBtn = document.createElement('button');
     zipBtn.textContent = 'Get the Weather';
     zipBtn.className = 'col-4 col-sm-2 btn btn-success';
     zipBtn.addEventListener('click', () => {checkZip(inputForm.value)});
     topRow.appendChild(zipBtn);
-    
+    // Location button
     const locBtn = document.createElement('button');
     locBtn.textContent = 'Use my location';
     locBtn.className = 'col-4 col-sm-2 btn btn-success';
@@ -50,48 +51,42 @@ function initPage(){
     topRow.appendChild(locBtn);
     
 }
-
+// Converts the temperature from Kelvin to the other ones
 function convertTemp(){
     state.weatherInfo.tempC = Math.round(state.weatherInfo.tempK - 273.15);
     state.weatherInfo.tempF = Math.round((state.weatherInfo.tempK  - 273.15) * (9/5) + 32);
 }
-function testPrint(){
-    for(let char of state.weatherInfo){
-        console.log(char);
-    }
-}
 
+// if the Location button gets clicked starts the chain of checks for that
 function useLoc(){
     if(!navigator.geolocation){
-        removePage();
+        removePage('GEOLOCATION NOT AVAILABLE');
     }
     navigator.geolocation.getCurrentPosition(success, error);
 }
 
+// If it fails to get the geolocation
 function error(){
     removePage('LOCATION NOT SUPPORTED');
 }
-
+// If geolocation is successfull parses the latitude and longitutde and passes it to the dataloc
 function success(position){
     let coords = position.coords;
     getDataLoc(coords);
 }
-
+// Checks the zip code if a valid zip code. This allows some basic checks to avoid API calls
 function checkZip(zip){
     if(isNaN(zip)){
-        
         removePage('INVALID ZIP');
         return;
     }
-    
     else if(zip > 99950 || zip < 9999) {
-        
         removePage('INVALID ZIP');
         return;
     }
     getData(zip);
 }
-
+// Gets the data from the API using ZIP code
 async function getData(zip){
     let url = state.API.replace('[ZIPCODE]', zip);
     try {
@@ -107,7 +102,7 @@ async function getData(zip){
         removePage('INVALID ZIP');
     }
 }
-
+// Gets Data from the API using geolocation
 async function getDataLoc(position){
     let url = state.APIloc.replace('{lat}', position.latitude)
     url = url.replace('{lon}', position.longitude);
@@ -124,33 +119,31 @@ async function getDataLoc(position){
         removePage('LOCATION NOT SUPPORTED');
     }
 }
-
+// Appends the html boxes under temperature and sets the particular style
 function addTemp(text, parent){
     let newTemp = document.createElement('div');
     newTemp.className = 'border border-dark col-4'
     newTemp.textContent = text;
     parent.appendChild(newTemp);
 }
-
+// Appends the image to the bottom of the page
 function createImg(text, parent){
     let newImg = document.createElement('img');
     newImg.src = 'http://openweathermap.org/img/wn/' + text + '@2x.png';
-    newImg.className = 'col-6 container border border-dark';
+    newImg.className = 'col-6 container img-fluid border border-dark';
     parent.appendChild(newImg);
 }
-
+// Creates the "text" box and sets the content. Don't need to worry about id except for temp box
 function createBox(text, parent, id = null){
     let newBox = document.createElement('div');
     newBox.className = 'container d-flex border border-dark justify-content-center col-6 p-2 mb-3';
     if(text != null){
         newBox.textContent = text;
     }
-    if(id != null){
-        newBox.id = id;
-    }
+    newBox.id = id;
     parent.appendChild(newBox);
 }
-
+// Creates the header and adds the text to the box
 function createHead(text, parent){
     let newHead = document.createElement('div');
     newHead.className = 'border border-dark container-fluid bg-warning bg-gradient col-6 p-1  mt-3';
@@ -159,6 +152,7 @@ function createHead(text, parent){
 }
 
 function updatePage(){
+    // Checking if any content is loaded in the "Weather" section and removes it
     let dele = document.getElementById('errorCard');
     if(dele != null){
         dele.remove();
@@ -167,6 +161,7 @@ function updatePage(){
     if(dele != null){
         dele.remove();
     }
+    // Creates the card and runs through the elements and appends them.
     let card = document.createElement('div');
     card.className = 'card d-flex justify-content-center text-center mt-3';
     card.id = 'card';
@@ -175,9 +170,9 @@ function updatePage(){
     createBox(state.weatherInfo.location, card);
     createHead('Temperature', card);
     createBox(null, card, 'tempBox');
-    addTemp(state.weatherInfo.tempK + 'K', tempBox);
-    addTemp(state.weatherInfo.tempF + 'F', tempBox);
-    addTemp(state.weatherInfo.tempC + 'C', tempBox);
+    addTemp(state.weatherInfo.tempK + ' K', tempBox);
+    addTemp(state.weatherInfo.tempF + ' F', tempBox);
+    addTemp(state.weatherInfo.tempC + ' C', tempBox);
     createHead('Condition', card);
     createBox(state.weatherInfo.descrtip, card);
     createHead('Image', card);
@@ -185,7 +180,9 @@ function updatePage(){
     editBack(state.weatherInfo.img);
 }
 
+// Will be called if the API calls fail, ZIP is invalid, or geolocation failure
 function removePage(errorMsg){
+    // Checks if any 
     let dele = document.getElementById('card');
     if(dele != null){
         dele.remove();
@@ -194,6 +191,7 @@ function removePage(errorMsg){
     if(dele != null){
         dele.remove();
     }
+    // Creates the error card and puts it on the page
     let errorCard = document.createElement('div');
     errorCard.className = 'card d-flex justify-content-center text-center mt-3'
     errorCard.id = 'errorCard';
@@ -203,9 +201,10 @@ function removePage(errorMsg){
     createHead('ERROR', errorCard);
     createBox(errorMsg, errorCard);
 }
+// Changes the color the background to a certain color based on the icon
 function editBack(condition){
     if(document.getElementById('card') != null){
-       card = document.getElementById('card');
+        card = document.getElementById('card');
     }
     form = document.getElementById('form');
     if(condition === '01d' || condition === '01n'){
@@ -255,4 +254,5 @@ function editBack(condition){
     }
 }
 
+// Initialize the page and appends the header. 
 initPage();
