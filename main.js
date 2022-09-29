@@ -1,6 +1,7 @@
 const htmlBody = document.getElementById('main');
 const state = {
     API: 'https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=0df3bd48560ad03c51a4637c5db0548e',
+    APIloc: 'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=0df3bd48560ad03c51a4637c5db0548e',
     weatherInfo : {
         tempK: 0,
         location: '',
@@ -33,6 +34,7 @@ function initPage(){
     const inputForm = document.createElement('input');
     inputForm.className = 'col-8 col-sm-4';
     inputForm.placeholder = 'Enter your ZIP code';
+    inputForm.id = 'form';
     topRow.appendChild(inputForm);
 
     const zipBtn = document.createElement('button');
@@ -40,6 +42,12 @@ function initPage(){
     zipBtn.className = 'col-4 col-sm-2 btn btn-success';
     zipBtn.addEventListener('click', () => {checkZip(inputForm.value)});
     topRow.appendChild(zipBtn);
+    
+    const locBtn = document.createElement('button');
+    locBtn.textContent = 'Use my location';
+    locBtn.className = 'col-4 col-sm-2 btn btn-success';
+    locBtn.addEventListener('click', () => {useLoc()});
+    topRow.appendChild(locBtn);
     
 }
 
@@ -52,21 +60,33 @@ function testPrint(){
         console.log(char);
     }
 }
-// IF the API fails its call
-// function errorZip(){
-//     alert('That zip code is invalid')
-// }
+
+function useLoc(){
+    if(!navigator.geolocation){
+        removePage();
+    }
+    navigator.geolocation.getCurrentPosition(success, error);
+}
+
+function error(){
+    removePage('LOCATION NOT SUPPORTED');
+}
+
+function success(position){
+    let coords = position.coords;
+    getDataLoc(coords);
+}
 
 function checkZip(zip){
     if(isNaN(zip)){
-        // errorZip();
-        removePage();
+        
+        removePage('INVALID ZIP');
         return;
     }
     
     else if(zip > 99950 || zip < 9999) {
-        // errorZip();
-        removePage();
+        
+        removePage('INVALID ZIP');
         return;
     }
     getData(zip);
@@ -74,9 +94,7 @@ function checkZip(zip){
 
 async function getData(zip){
     let url = state.API.replace('[ZIPCODE]', zip);
-    console.log(zip, state.API);
     try {
-        console.log('got here');
         const response = await axios.get(url);
         state.weatherInfo.humid = response.data.main.humidity;
         state.weatherInfo.descrtip = response.data.weather[0].description;
@@ -86,10 +104,25 @@ async function getData(zip){
         convertTemp();
         updatePage();
     } catch (error) {
-        removePage();
-        // errorZip();
+        removePage('INVALID ZIP');
     }
-    
+}
+
+async function getDataLoc(position){
+    let url = state.APIloc.replace('{lat}', position.latitude)
+    url = url.replace('{lon}', position.longitude);
+    try {
+        const response = await axios.get(url);
+        state.weatherInfo.humid = response.data.main.humidity;
+        state.weatherInfo.descrtip = response.data.weather[0].description;
+        state.weatherInfo.location = response.data.name;
+        state.weatherInfo.tempK = Math.round(response.data.main.temp);
+        state.weatherInfo.img = response.data.weather[0].icon;
+        convertTemp();
+        updatePage();
+    } catch (error) {
+        removePage('LOCATION NOT SUPPORTED');
+    }
 }
 
 function addTemp(text, parent){
@@ -130,6 +163,10 @@ function updatePage(){
     if(dele != null){
         dele.remove();
     }
+    dele = document.getElementById('card');
+    if(dele != null){
+        dele.remove();
+    }
     let card = document.createElement('div');
     card.className = 'card d-flex justify-content-center text-center mt-3';
     card.id = 'card';
@@ -145,9 +182,10 @@ function updatePage(){
     createBox(state.weatherInfo.descrtip, card);
     createHead('Image', card);
     createImg(state.weatherInfo.img, card);
+    editBack(state.weatherInfo.img);
 }
 
-function removePage(){
+function removePage(errorMsg){
     let dele = document.getElementById('card');
     if(dele != null){
         dele.remove();
@@ -159,8 +197,62 @@ function removePage(){
     let errorCard = document.createElement('div');
     errorCard.className = 'card d-flex justify-content-center text-center mt-3'
     errorCard.id = 'errorCard';
+    htmlBody.style = '';
+    form.style = '';
     htmlBody.appendChild(errorCard);
     createHead('ERROR', errorCard);
-    createBox('INVALID ZIP CODE', errorCard);
+    createBox(errorMsg, errorCard);
 }
+function editBack(condition){
+    if(document.getElementById('card') != null){
+       card = document.getElementById('card');
+    }
+    form = document.getElementById('form');
+    if(condition === '01d' || condition === '01n'){
+        htmlBody.style = 'background-color: #87CEFA';
+        card.style = 'background-color: #87CEFA';
+        form.style = 'background-color: #87CEFA';
+    }
+    if(condition === '02d' || condition === '02n'){
+        htmlBody.style = 'background-color: #D3D3D3';
+        card.style = 'background-color: #D3D3D3';
+        form.style = 'background-color: #D3D3D3';
+    }
+    if(condition === '03d' || condition === '03n'){
+        htmlBody.style = 'background-color: #696969';
+        card.style = 'background-color: #696969';
+        form.style = 'background-color: #696969';
+    }
+    if(condition === '04d' || condition === '04n'){
+        htmlBody.style = 'background-color: #778899';
+        card.style = 'background-color: #778899';
+        form.style = 'background-color: #778899';
+    }
+    if(condition === '09d' || condition === '09n') {
+        htmlBody.style = 'background-color: #20B2AA';
+        card.style = 'background-color: #20B2AA';
+        form.style = 'background-color: #20B2AA';
+    }
+    if(condition === '10d' || condition === '10n') {
+        htmlBody.style = 'background-color: #4682B4';
+        card.style = 'background-color: #4682B4';
+        form.style = 'background-color: #4682B4';
+    }
+    if(condition === '11d' || condition === '11n') {
+        htmlBody.style = 'background-color: #000080';
+        card.style = 'background-color: #000080';
+        form.style = 'background-color: #000080';
+    }
+    if(condition === '13d' || condition === '13n') {
+        htmlBody.style = 'background-color: #FFFAFA';
+        card.style = 'background-color: #FFFAFA';
+        form.style = 'background-color: #FFFAFA';
+    }
+    if(condition === '50d' || condition === '50n'){
+        htmlBody.style = 'background-color: #B0C4DE';
+        card.style = 'background-color: #B0C4DE';
+        form.style = 'background-color: #B0C4DE';
+    }
+}
+
 initPage();
