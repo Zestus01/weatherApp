@@ -1,6 +1,7 @@
 const htmlBody = document.getElementById('main');
 const state = {
     API: 'https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=0df3bd48560ad03c51a4637c5db0548e',
+    urlLoc: 'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=0df3bd48560ad03c51a4637c5db0548e',
     weatherInfo : {
         tempK: 0,
         location: '',
@@ -41,6 +42,12 @@ function initPage(){
     zipBtn.addEventListener('click', () => {checkZip(inputForm.value)});
     topRow.appendChild(zipBtn);
     
+    const locBtn = document.createElement('button');
+    locBtn.textContent = 'Use my location';
+    locBtn.className = 'col-4 col-sm-2 btn btn-success';
+    locBtn.addEventListener('click', () => {useLoc()});
+    topRow.appendChild(locBtn);
+    
 }
 
 function convertTemp(){
@@ -52,20 +59,23 @@ function testPrint(){
         console.log(char);
     }
 }
-// IF the API fails its call
-// function errorZip(){
-//     alert('That zip code is invalid')
-// }
+
+function useLoc(){
+    if(!navigator.geolocation){
+        removePage();
+    }
+
+}
 
 function checkZip(zip){
     if(isNaN(zip)){
-        // errorZip();
+        
         removePage();
         return;
     }
     
     else if(zip > 99950 || zip < 9999) {
-        // errorZip();
+        
         removePage();
         return;
     }
@@ -74,9 +84,7 @@ function checkZip(zip){
 
 async function getData(zip){
     let url = state.API.replace('[ZIPCODE]', zip);
-    console.log(zip, state.API);
     try {
-        console.log('got here');
         const response = await axios.get(url);
         state.weatherInfo.humid = response.data.main.humidity;
         state.weatherInfo.descrtip = response.data.weather[0].description;
@@ -87,9 +95,23 @@ async function getData(zip){
         updatePage();
     } catch (error) {
         removePage();
-        // errorZip();
     }
-    
+}
+
+async function getDataLoc(position){
+    let url = stat
+    try {
+        const response = await axios.get(url);
+        state.weatherInfo.humid = response.data.main.humidity;
+        state.weatherInfo.descrtip = response.data.weather[0].description;
+        state.weatherInfo.location = response.data.name;
+        state.weatherInfo.tempK = Math.round(response.data.main.temp);
+        state.weatherInfo.img = response.data.weather[0].icon;
+        convertTemp();
+        updatePage();
+    } catch (error) {
+        removePage();
+    }
 }
 
 function addTemp(text, parent){
