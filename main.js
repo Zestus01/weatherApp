@@ -1,7 +1,7 @@
 const htmlBody = document.getElementById('main');
 const state = {
     API: 'https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=0df3bd48560ad03c51a4637c5db0548e',
-    urlLoc: 'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=0df3bd48560ad03c51a4637c5db0548e',
+    APIloc: 'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=0df3bd48560ad03c51a4637c5db0548e',
     weatherInfo : {
         tempK: 0,
         location: '',
@@ -64,19 +64,28 @@ function useLoc(){
     if(!navigator.geolocation){
         removePage();
     }
+    navigator.geolocation.getCurrentPosition(success, error);
+}
 
+function error(){
+    removePage('LOCATION NOT SUPPORTED');
+}
+
+function success(position){
+    let coords = position.coords;
+    getDataLoc(coords);
 }
 
 function checkZip(zip){
     if(isNaN(zip)){
         
-        removePage();
+        removePage('INVALID ZIP');
         return;
     }
     
     else if(zip > 99950 || zip < 9999) {
         
-        removePage();
+        removePage('INVALID ZIP');
         return;
     }
     getData(zip);
@@ -94,12 +103,13 @@ async function getData(zip){
         convertTemp();
         updatePage();
     } catch (error) {
-        removePage();
+        removePage('INVALID ZIP');
     }
 }
 
 async function getDataLoc(position){
-    let url = stat
+    let url = state.APIloc.replace('{lat}', position.latitude)
+    url = url.replace('{lon}', position.longitude);
     try {
         const response = await axios.get(url);
         state.weatherInfo.humid = response.data.main.humidity;
@@ -110,7 +120,7 @@ async function getDataLoc(position){
         convertTemp();
         updatePage();
     } catch (error) {
-        removePage();
+        removePage('LOCATION NOT SUPPORTED');
     }
 }
 
@@ -152,6 +162,10 @@ function updatePage(){
     if(dele != null){
         dele.remove();
     }
+    dele = document.getElementById('card');
+    if(dele != null){
+        dele.remove();
+    }
     let card = document.createElement('div');
     card.className = 'card d-flex justify-content-center text-center mt-3';
     card.id = 'card';
@@ -167,9 +181,10 @@ function updatePage(){
     createBox(state.weatherInfo.descrtip, card);
     createHead('Image', card);
     createImg(state.weatherInfo.img, card);
+    //editBack(state.weatherInfo.descrtip);
 }
 
-function removePage(){
+function removePage(errorMsg){
     let dele = document.getElementById('card');
     if(dele != null){
         dele.remove();
@@ -183,6 +198,18 @@ function removePage(){
     errorCard.id = 'errorCard';
     htmlBody.appendChild(errorCard);
     createHead('ERROR', errorCard);
-    createBox('INVALID ZIP CODE', errorCard);
+    createBox(errorMsg, errorCard);
 }
+// function editBack(condition){
+//     card = getElementById('card');
+//     if(card === null){
+//         card = getElementById('errorCard');
+//     }
+//     switch (condition){
+//         case 'clear sky':
+//             htmlBody.style = 'background-color: yellow';
+//             card.style = 'background-color: yellow';
+//     }
+// }
+
 initPage();
