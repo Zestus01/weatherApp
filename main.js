@@ -208,39 +208,39 @@ function editBack(condition){
     }
     form = document.getElementById('form');
     if(condition === '01d' || condition === '01n'){
-        htmlBody.style = 'background-color: #87CEFA';
-        card.style = 'background-color: #87CEFA';
-        form.style = 'background-color: #87CEFA';
+        htmlBody.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+        card.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+        form.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
     }
     if(condition === '02d' || condition === '02n'){
-        htmlBody.style = 'background-color: #D3D3D3';
-        card.style = 'background-color: #D3D3D3';
-        form.style = 'background-color: #D3D3D3';
+        htmlBody.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
+        card.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
+        form.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
     }
-    if(condition === '03d' || condition === '03n'){
-        htmlBody.style = 'background-color: #696969';
-        card.style = 'background-color: #696969';
-        form.style = 'background-color: #696969';
+    if(condition === '03d' || condition === '03n'){ 
+        htmlBody.style = 'background: radial-gradient(#808080, #E6E6FA)';
+        card.style = 'background: radial-gradient(#808080, #E6E6FA)';
+        form.style = 'background: radial-gradient(#808080, #E6E6FA)';
     }
     if(condition === '04d' || condition === '04n'){
-        htmlBody.style = 'background-color: #778899';
-        card.style = 'background-color: #778899';
-        form.style = 'background-color: #778899';
+        htmlBody.style = 'background: radial-gradient(#778899, #696969)';
+        card.style = 'background: radial-gradient(#778899, #696969)';
+        form.style = 'background: radial-gradient(#778899, #696969)';
     }
-    if(condition === '09d' || condition === '09n') {
-        htmlBody.style = 'background-color: #20B2AA';
-        card.style = 'background-color: #20B2AA';
-        form.style = 'background-color: #20B2AA';
+    if(condition === '09d' || condition === '09n') { 
+        htmlBody.style = 'background: radial-gradient(#0000CD, #7B68EE)';
+        card.style = 'background: radial-gradient(#0000CD, #7B68EE)';
+        form.style = 'background: radial-gradient(#0000CD, #7B68EE)';
     }
     if(condition === '10d' || condition === '10n') {
-        htmlBody.style = 'background-color: #4682B4';
-        card.style = 'background-color: #4682B4';
-        form.style = 'background-color: #4682B4';
+        htmlBody.style = 'background: radial-gradient(#4682B4, #4169E1)';
+        card.style = 'background: radial-gradient(#4682B4, #4169E1)';
+        form.style = 'background: radial-gradient(#4682B4, #4169E1)';
     }
     if(condition === '11d' || condition === '11n') {
-        htmlBody.style = 'background-color: #000080';
-        card.style = 'background-color: #000080';
-        form.style = 'background-color: #000080';
+        htmlBody.style = 'background: radial-gradient(#000080, #708090)';
+        card.style = 'background: radial-gradient(#000080, #708090)';
+        form.style = 'background: radial-gradient(#000080, #708090)';
     }
     if(condition === '13d' || condition === '13n') {
         htmlBody.style = 'background-color: #FFFAFA';
@@ -248,11 +248,11 @@ function editBack(condition){
         form.style = 'background-color: #FFFAFA';
     }
     if(condition === '50d' || condition === '50n'){
-        htmlBody.style = 'background-color: #B0C4DE';
-        card.style = 'background-color: #B0C4DE';
-        form.style = 'background-color: #B0C4DE';
+        htmlBody.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
+        card.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
+        form.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
     }
 }
 
-// Initialize the page and appends the header. 
+// Initialize the page and sets up the header 
 initPage();
