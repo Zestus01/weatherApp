@@ -182,7 +182,7 @@ function updatePage(){
 
 // Will be called if the API calls fail, ZIP is invalid, or geolocation failure
 function removePage(errorMsg){
-    // Checks if any 
+    // Checks if any cards are in the DOM and removes them
     let dele = document.getElementById('card');
     if(dele != null){
         dele.remove();
@@ -202,6 +202,7 @@ function removePage(errorMsg){
     createBox(errorMsg, errorCard);
 }
 // Changes the color the background to a certain color based on the icon
+// And Yes I just learned about gradients, GRAPHIC DESIGN IS MY PASSION MEME
 function editBack(condition){
     if(document.getElementById('card') != null){
         card = document.getElementById('card');
