@@ -1,4 +1,5 @@
 const htmlBody = document.getElementById('main');
+// State is an object that holds API and eventaully the weather Data
 const state = {
     API: 'https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=0df3bd48560ad03c51a4637c5db0548e',
     APIloc: 'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=0df3bd48560ad03c51a4637c5db0548e',
