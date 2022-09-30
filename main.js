@@ -71,7 +71,7 @@ function convertTemp(){
     state.weatherInfo.tempC = Math.round(state.weatherInfo.tempK - 273.15);
     state.weatherInfo.tempF = Math.round((state.weatherInfo.tempK  - 273.15) * (9/5) + 32);
 }
-
+// Appends either the local storage or given zip to the drop down selector
 function appendSaved(bool, zip){
     let dropDown = document.getElementById('dropDown');
     // Will only run when Initiating the site
