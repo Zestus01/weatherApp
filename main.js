@@ -1,8 +1,9 @@
 const htmlBody = document.getElementById('main');
 // State is an object that holds API and eventaully the weather Data
 const state = {
-    API: 'https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=0df3bd48560ad03c51a4637c5db0548e',
-    APIloc: 'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=0df3bd48560ad03c51a4637c5db0548e',
+    APIKEY: "0df3bd48560ad03c51a4637c5db0548e",
+    zipUrl: "https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=",
+    locURL: "https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=",
     weatherInfo : {
         tempK: 0,
         location: '',
@@ -42,12 +43,14 @@ function initPage(){
     const zipBtn = document.createElement('button');
     zipBtn.textContent = 'Get the Weather';
     zipBtn.className = 'col-4 col-sm-2 btn btn-success';
+    // zipBtn.addEventListener('click', checkZip(inputForm.value);
     zipBtn.addEventListener('click', () => {checkZip(inputForm.value)});
     topRow.appendChild(zipBtn);
     // Location button
     const locBtn = document.createElement('button');
     locBtn.textContent = 'Use my location';
     locBtn.className = 'col-4 col-sm-2 btn btn-success';
+    //  locBtn.addEventListener('click', useLoc); 
     locBtn.addEventListener('click', () => {useLoc()});
     topRow.appendChild(locBtn);
     
@@ -64,19 +67,21 @@ function initPage(){
     dropDown.placeholder = 'Saved ZIP codes';
     topRow.appendChild(dropDown);
     appendSaved();
-
 }
+
 // Parses the saved zip code and slices off the city and passes to get data.
 function parseSaved(saved){
     let newStr = saved.slice(saved.indexOf(': ') + 2);
     getData(newStr, false);
 
 }
+
 // Converts the temperature from Kelvin to the other ones
 function convertTemp(){
     state.weatherInfo.tempC = Math.round(state.weatherInfo.tempK - 273.15);
     state.weatherInfo.tempF = Math.round((state.weatherInfo.tempK  - 273.15) * (9/5) + 32);
 }
+
 // Runs at the init of the page and appends the saved the zip codes to the drop down.
 function appendSaved(){
     let dropDown = document.getElementById('dropDown');
@@ -88,46 +93,42 @@ function appendSaved(){
     }
 } 
 
-
 // if the Location button gets clicked starts the chain of checks for that
 function useLoc(){
     if(!navigator.geolocation){
-        removePage('GEOLOCATION NOT AVAILABLE');
+        errorPage('GEOLOCATION NOT AVAILABLE');
     }
     navigator.geolocation.getCurrentPosition(success, error);
 }
 
 // If it fails to get the geolocation
 function error(){
-    removePage('LOCATION NOT SUPPORTED');
+    errorPage('LOCATION NOT SUPPORTED');
 }
+
 // If geolocation is successfull parses the latitude and longitutde and passes it to the dataloc
 function success(position){
     let coords = position.coords;
     getDataLoc(coords);
 }
+
 // Checks the zip code if a valid zip code. This allows some basic checks to avoid API calls
 function checkZip(zip){
-    if(isNaN(zip)){
-        removePage('INVALID ZIP');
-        return;
-    }
-    else if(zip > 99950 || zip < 999) {
-        removePage('INVALID ZIP');
+
+    if(isNaN(zip) && zip > 99950 && zip < 9999){
+        errorPage('INVALID ZIP');
         return;
     }
     getData(zip, true);
 }
+
 // Gets the data from the API using ZIP code
 async function getData(zip, bool){
-    let url = state.API.replace('[ZIPCODE]', zip);
+    let url = state.zipUrl.replace('[ZIPCODE]', zip);
+    url = url + state.APIKEY;
     try {
         const response = await axios.get(url);
-        state.weatherInfo.humid = response.data.main.humidity;
-        state.weatherInfo.descrtip = response.data.weather[0].description;
-        state.weatherInfo.location = response.data.name;
-        state.weatherInfo.tempK = Math.round(response.data.main.temp);
-        state.weatherInfo.img = response.data.weather[0].icon;
+        parseData(response);
         if(bool){
             localStorage.setItem('city' + localStorage.length, state.weatherInfo.location + ': ' + zip);
             let option = document.createElement('option');
@@ -138,26 +139,33 @@ async function getData(zip, bool){
         convertTemp();
         updatePage();
     } catch (error) {
-        removePage('INVALID ZIP');
+        errorPage('INVALID ZIP');
     }
 }
+
 // Gets Data from the API using geolocation
 async function getDataLoc(position){
-    let url = state.APIloc.replace('{lat}', position.latitude)
+    let url = state.locURL.replace('{lat}', position.latitude)
     url = url.replace('{lon}', position.longitude);
+    url = url + state.APIKEY;
     try {
         const response = await axios.get(url);
-        state.weatherInfo.humid = response.data.main.humidity;
-        state.weatherInfo.descrtip = response.data.weather[0].description;
-        state.weatherInfo.location = response.data.name;
-        state.weatherInfo.tempK = Math.round(response.data.main.temp);
-        state.weatherInfo.img = response.data.weather[0].icon;
+        parseData(response);
         convertTemp();
         updatePage();
     } catch (error) {
-        removePage('LOCATION NOT SUPPORTED');
+        errorPage('LOCATION NOT SUPPORTED');
     }
 }
+
+function parseData(response){
+    state.weatherInfo.humid = response.data.main.humidity;
+    state.weatherInfo.descrtip = response.data.weather[0].description;
+    state.weatherInfo.location = response.data.name;
+    state.weatherInfo.tempK = Math.round(response.data.main.temp);
+    state.weatherInfo.img = response.data.weather[0].icon;
+}
+
 // Appends the html boxes under temperature and sets the particular style
 function addTemp(text, parent){
     let newTemp = document.createElement('div');
@@ -165,13 +173,15 @@ function addTemp(text, parent){
     newTemp.textContent = text;
     parent.appendChild(newTemp);
 }
+
 // Appends the image to the bottom of the page
 function createImg(text, parent){
     let newImg = document.createElement('img');
-    newImg.src = 'http://openweathermap.org/img/wn/' + text + '@2x.png';
+    newImg.src = `http://openweathermap.org/img/wn/${text}@4x.png`;
     newImg.className = 'col-6 container img-fluid border border-dark';
     parent.appendChild(newImg);
 }
+
 // Creates the "text" box and sets the content. Don't need to worry about id except for temp box
 function createBox(text, parent, id = null){
     let newBox = document.createElement('div');
@@ -182,6 +192,7 @@ function createBox(text, parent, id = null){
     newBox.id = id;
     parent.appendChild(newBox);
 }
+
 // Creates the header and adds the text to the box
 function createHead(text, parent){
     let newHead = document.createElement('div');
@@ -213,7 +224,7 @@ function updatePage(){
 }
 
 // Will be called if the API calls fail, ZIP is invalid, or geolocation failure
-function removePage(errorMsg){
+function errorPage(errorMsg){
     // Checks if any cards are in the DOM and removes them
     deletePage();
     // Creates the error card and puts it on the page
@@ -226,68 +237,67 @@ function removePage(errorMsg){
     createHead('ERROR', errorCard);
     createBox(errorMsg, errorCard);
 }
+
 function deletePage(){
     let dele = document.getElementById('card');
-    if(dele != null){
+    if(!dele){
         dele.remove();
     }
     dele = document.getElementById('errorCard');
-    if(dele != null){
+    if(!dele){
         dele.remove();
     }
 }
+
 // Changes the color the background to a certain color based on the icon
 // And Yes I just learned about gradients, GRAPHIC DESIGN IS MY PASSION MEME
 function editBack(condition){
     if(document.getElementById('card') != null){
         card = document.getElementById('card');
     }
-    form = document.getElementById('form');
-    if(condition === '01d' || condition === '01n'){
-        htmlBody.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
-        card.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
-        form.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+    let style;
+    let form = document.getElementById('form');
+    switch(condition){
+        case '01d': 
+        case '01n': 
+            style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+            break;
+        case '02d':
+        case '02n':
+            style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
+            break;
+        case '03d':
+        case '03n':
+            style = 'background: radial-gradient(#808080, #E6E6FA)';
+            break;
+        case '04d':
+        case '04n':
+            style = 'background: radial-gradient(#778899, #696969)';
+            break;
+        case '09d':
+        case '09n':
+            style = 'background: radial-gradient(#0000CD, #7B68EE)';
+            break;
+        case '10d':
+        case '10n':
+            style = 'background: radial-gradient(#4682B4, #4169E1)';
+            break;
+        case '11d':
+        case '11n':
+            style = 'background: radial-gradient(#000080, #708090)';
+            break;
+        case '13d':
+        case '13n':
+            style = 'background-color: #FFFAFA';
+            break;
+        case '50d':
+        case '50n':
+            style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
+            break;
     }
-    if(condition === '02d' || condition === '02n'){
-        htmlBody.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
-        card.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
-        form.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
-    }
-    if(condition === '03d' || condition === '03n'){ 
-        htmlBody.style = 'background: radial-gradient(#808080, #E6E6FA)';
-        card.style = 'background: radial-gradient(#808080, #E6E6FA)';
-        form.style = 'background: radial-gradient(#808080, #E6E6FA)';
-    }
-    if(condition === '04d' || condition === '04n'){
-        htmlBody.style = 'background: radial-gradient(#778899, #696969)';
-        card.style = 'background: radial-gradient(#778899, #696969)';
-        form.style = 'background: radial-gradient(#778899, #696969)';
-    }
-    if(condition === '09d' || condition === '09n') { 
-        htmlBody.style = 'background: radial-gradient(#0000CD, #7B68EE)';
-        card.style = 'background: radial-gradient(#0000CD, #7B68EE)';
-        form.style = 'background: radial-gradient(#0000CD, #7B68EE)';
-    }
-    if(condition === '10d' || condition === '10n') {
-        htmlBody.style = 'background: radial-gradient(#4682B4, #4169E1)';
-        card.style = 'background: radial-gradient(#4682B4, #4169E1)';
-        form.style = 'background: radial-gradient(#4682B4, #4169E1)';
-    }
-    if(condition === '11d' || condition === '11n') {
-        htmlBody.style = 'background: radial-gradient(#000080, #708090)';
-        card.style = 'background: radial-gradient(#000080, #708090)';
-        form.style = 'background: radial-gradient(#000080, #708090)';
-    }
-    if(condition === '13d' || condition === '13n') {
-        htmlBody.style = 'background-color: #FFFAFA';
-        card.style = 'background-color: #FFFAFA';
-        form.style = 'background-color: #FFFAFA';
-    }
-    if(condition === '50d' || condition === '50n'){
-        htmlBody.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
-        card.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
-        form.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
-    }
+    htmlBody.style = style;
+    card.style = style;
+    form.style = style;
 }
 
 // Initialize the page and sets up the header 
