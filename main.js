@@ -57,6 +57,12 @@ function initPage(){
     saveBtn.addEventListener('click', () => {checkZip(dropDown.value)});
     topRow.appendChild(saveBtn);
     
+    const mapBtn = document.createElement('button');
+    mapBtn.textContent = 'MAP';
+    mapBtn.className = 'col-4 col-sm-2 btn btn-success';
+    mapBtn.addEventListener('click', () => {initMap()});
+    topRow.appendChild(mapBtn);
+
     const dropDown = document.createElement('select')
     dropDown.id = 'dropDown';
     dropDown.textContent = 'Saved ZIP Codes';
@@ -66,6 +72,28 @@ function initPage(){
     appendSaved(true, 0);
 
 }
+
+function initMap(){
+    let mapDiv = document.createElement('div');
+    mapDiv.id = 'map';
+    htmlBody.appendChild(mapDiv);
+    const originalMapCenter = new google.maps.LatLng(-25.363882, 131.044922);
+    const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 4,
+        center: originalMapCenter,
+    });
+    const infowindow = new google.maps.InfoWindow({
+        content: "Change the zoom level",
+        position: originalMapCenter,
+    });
+
+    infowindow.open(map);
+    map.addListener("zoom_changed", () => {
+        infowindow.setContent("Zoom: " + map.getZoom());
+    });
+}
+
+
 // Converts the temperature from Kelvin to the other ones
 function convertTemp(){
     state.weatherInfo.tempC = Math.round(state.weatherInfo.tempK - 273.15);
