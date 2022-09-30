@@ -2,8 +2,8 @@ const htmlBody = document.getElementById('main');
 // State is an object that holds API and eventaully the weather Data
 const state = {
     APIKEY: "0df3bd48560ad03c51a4637c5db0548e",
-    zipUrl: `https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=${state.APIKEY}`,
-    locAPI: `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=${state.APIKEY}`,
+    zipUrl: "https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=",
+    locURL: "https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=",
     weatherInfo : {
         tempK: 0,
         location: '',
@@ -67,19 +67,21 @@ function initPage(){
     dropDown.placeholder = 'Saved ZIP codes';
     topRow.appendChild(dropDown);
     appendSaved();
-
 }
+
 // Parses the saved zip code and slices off the city and passes to get data.
 function parseSaved(saved){
     let newStr = saved.slice(saved.indexOf(': ') + 2);
     getData(newStr, false);
 
 }
+
 // Converts the temperature from Kelvin to the other ones
 function convertTemp(){
     state.weatherInfo.tempC = Math.round(state.weatherInfo.tempK - 273.15);
     state.weatherInfo.tempF = Math.round((state.weatherInfo.tempK  - 273.15) * (9/5) + 32);
 }
+
 // Runs at the init of the page and appends the saved the zip codes to the drop down.
 function appendSaved(){
     let dropDown = document.getElementById('dropDown');
@@ -91,39 +93,38 @@ function appendSaved(){
     }
 } 
 
-
 // if the Location button gets clicked starts the chain of checks for that
 function useLoc(){
     if(!navigator.geolocation){
-        removePage('GEOLOCATION NOT AVAILABLE');
+        errorPage('GEOLOCATION NOT AVAILABLE');
     }
     navigator.geolocation.getCurrentPosition(success, error);
 }
 
 // If it fails to get the geolocation
 function error(){
-    removePage('LOCATION NOT SUPPORTED');
+    errorPage('LOCATION NOT SUPPORTED');
 }
+
 // If geolocation is successfull parses the latitude and longitutde and passes it to the dataloc
 function success(position){
     let coords = position.coords;
     getDataLoc(coords);
 }
+
 // Checks the zip code if a valid zip code. This allows some basic checks to avoid API calls
 function checkZip(zip){
-    if(isNaN(zip)){
-        removePage('INVALID ZIP');
-        return;
-    }
-    else if(zip > 99950 || zip < 9999) {
-        removePage('INVALID ZIP');
+    if(isNaN(zip) && zip > 99950 && zip < 9999){
+        errorPage('INVALID ZIP');
         return;
     }
     getData(zip, true);
 }
+
 // Gets the data from the API using ZIP code
 async function getData(zip, bool){
-    let url = state.API.replace('[ZIPCODE]', zip);
+    let url = state.zipUrl.replace('[ZIPCODE]', zip);
+    url = url + state.APIKEY;
     try {
         const response = await axios.get(url);
         parseData(response);
@@ -137,22 +138,25 @@ async function getData(zip, bool){
         convertTemp();
         updatePage();
     } catch (error) {
-        removePage('INVALID ZIP');
+        errorPage('INVALID ZIP');
     }
 }
+
 // Gets Data from the API using geolocation
 async function getDataLoc(position){
-    let url = state.APIloc.replace('{lat}', position.latitude)
+    let url = state.locURL.replace('{lat}', position.latitude)
     url = url.replace('{lon}', position.longitude);
+    url = url + state.APIKEY;
     try {
         const response = await axios.get(url);
         parseData(response);
         convertTemp();
         updatePage();
     } catch (error) {
-        removePage('LOCATION NOT SUPPORTED');
+        errorPage('LOCATION NOT SUPPORTED');
     }
 }
+
 function parseData(response){
     state.weatherInfo.humid = response.data.main.humidity;
     state.weatherInfo.descrtip = response.data.weather[0].description;
@@ -160,6 +164,7 @@ function parseData(response){
     state.weatherInfo.tempK = Math.round(response.data.main.temp);
     state.weatherInfo.img = response.data.weather[0].icon;
 }
+
 // Appends the html boxes under temperature and sets the particular style
 function addTemp(text, parent){
     let newTemp = document.createElement('div');
@@ -167,13 +172,15 @@ function addTemp(text, parent){
     newTemp.textContent = text;
     parent.appendChild(newTemp);
 }
+
 // Appends the image to the bottom of the page
 function createImg(text, parent){
     let newImg = document.createElement('img');
-    newImg.src = 'http://openweathermap.org/img/wn/' + text + '@2x.png';
+    newImg.src = `http://openweathermap.org/img/wn/${text}@4x.png`;
     newImg.className = 'col-6 container img-fluid border border-dark';
     parent.appendChild(newImg);
 }
+
 // Creates the "text" box and sets the content. Don't need to worry about id except for temp box
 function createBox(text, parent, id = null){
     let newBox = document.createElement('div');
@@ -184,6 +191,7 @@ function createBox(text, parent, id = null){
     newBox.id = id;
     parent.appendChild(newBox);
 }
+
 // Creates the header and adds the text to the box
 function createHead(text, parent){
     let newHead = document.createElement('div');
@@ -215,7 +223,7 @@ function updatePage(){
 }
 
 // Will be called if the API calls fail, ZIP is invalid, or geolocation failure
-function removePage(errorMsg){
+function errorPage(errorMsg){
     // Checks if any cards are in the DOM and removes them
     deletePage();
     // Creates the error card and puts it on the page
@@ -228,6 +236,7 @@ function removePage(errorMsg){
     createHead('ERROR', errorCard);
     createBox(errorMsg, errorCard);
 }
+
 function deletePage(){
     let dele = document.getElementById('card');
     if(dele != null){
@@ -238,6 +247,7 @@ function deletePage(){
         dele.remove();
     }
 }
+
 // Changes the color the background to a certain color based on the icon
 // And Yes I just learned about gradients, GRAPHIC DESIGN IS MY PASSION MEME
 function editBack(condition){
@@ -251,7 +261,6 @@ function editBack(condition){
         case '01n': 
             style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
             break;
-    
         case '02d':
         case '02n':
             style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
