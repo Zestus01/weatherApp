@@ -68,7 +68,7 @@ function initPage(){
 }
 // Parses the saved zip code and slices off the city and passes to get data.
 function parseSaved(saved){
-    let newStr = saved.slice(saved.indexOf(' ') + 1);
+    let newStr = saved.slice(saved.indexOf(': ') + 2);
     getData(newStr, false);
 
 }
@@ -131,8 +131,8 @@ async function getData(zip, bool){
         if(bool){
             localStorage.setItem('city' + localStorage.length, state.weatherInfo.location + ': ' + zip);
             let option = document.createElement('option');
-            option.value = zip;
-            option.text = zip;
+            option.value = state.weatherInfo.location + ': ' + zip;
+            option.text = state.weatherInfo.location + ': ' + zip;
             dropDown.appendChild(option);
         }
         convertTemp();
