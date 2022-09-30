@@ -112,7 +112,7 @@ function checkZip(zip){
         removePage('INVALID ZIP');
         return;
     }
-    else if(zip > 99950 || zip < 9999) {
+    else if(zip > 99950 || zip < 999) {
         removePage('INVALID ZIP');
         return;
     }
