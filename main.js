@@ -42,12 +42,14 @@ function initPage(){
     const zipBtn = document.createElement('button');
     zipBtn.textContent = 'Get the Weather';
     zipBtn.className = 'col-4 col-sm-2 btn btn-success';
+    // zipBtn.addEventListener('click', checkZip(inputForm.value);
     zipBtn.addEventListener('click', () => {checkZip(inputForm.value)});
     topRow.appendChild(zipBtn);
     // Location button
     const locBtn = document.createElement('button');
     locBtn.textContent = 'Use my location';
     locBtn.className = 'col-4 col-sm-2 btn btn-success';
+    //  locBtn.addEventListener('click', useLoc); 
     locBtn.addEventListener('click', () => {useLoc()});
     topRow.appendChild(locBtn);
     
@@ -242,6 +244,15 @@ function editBack(condition){
     if(document.getElementById('card') != null){
         card = document.getElementById('card');
     }
+    // switch(condition){
+    //     case '01d': 
+    //     case '01n': 
+        
+    //         htmlBody.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+    //         card.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+    //         form.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+    //         break;
+    // }
     form = document.getElementById('form');
     if(condition === '01d' || condition === '01n'){
         htmlBody.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
