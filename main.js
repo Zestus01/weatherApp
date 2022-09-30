@@ -240,11 +240,11 @@ function errorPage(errorMsg){
 
 function deletePage(){
     let dele = document.getElementById('card');
-    if(dele != null){
+    if(!dele){
         dele.remove();
     }
     dele = document.getElementById('errorCard');
-    if(dele != null){
+    if(!dele){
         dele.remove();
     }
 }
