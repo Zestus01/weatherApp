@@ -54,7 +54,7 @@ function initPage(){
     const saveBtn = document.createElement('button');
     saveBtn.textContent = 'Use saved ZIP';
     saveBtn.className = 'col-4 col-sm-2 btn btn-success';
-    saveBtn.addEventListener('click', () => {checkZip(dropDown.value)});
+    saveBtn.addEventListener('click', () => {parseSaved(dropDown.value)});
     topRow.appendChild(saveBtn);
     
     const dropDown = document.createElement('select')
@@ -63,7 +63,13 @@ function initPage(){
     dropDown.className = 'form-select col-8'
     dropDown.placeholder = 'Saved ZIP codes';
     topRow.appendChild(dropDown);
-    appendSaved(true, 0);
+    appendSaved();
+
+}
+// Parses the saved zip code and slices off the city and passes to get data.
+function parseSaved(saved){
+    let newStr = saved.slice(saved.indexOf(' ') + 1);
+    getData(newStr, false);
 
 }
 // Converts the temperature from Kelvin to the other ones
@@ -71,24 +77,17 @@ function convertTemp(){
     state.weatherInfo.tempC = Math.round(state.weatherInfo.tempK - 273.15);
     state.weatherInfo.tempF = Math.round((state.weatherInfo.tempK  - 273.15) * (9/5) + 32);
 }
-
-function appendSaved(bool, zip){
+// Runs at the init of the page and appends the saved the zip codes to the drop down.
+function appendSaved(){
     let dropDown = document.getElementById('dropDown');
-    // Will only run when Initiating the site
-    if(bool){
-        for(let i = 0; i < localStorage.length; i++){
-            let option = document.createElement('option');
-            option.value = localStorage.getItem('city' + i);
-            option.text = localStorage.getItem('city' + i);
-            dropDown.appendChild(option);
-        }
-    } else {
+    for(let i = 0; i < localStorage.length; i++){
         let option = document.createElement('option');
-        option.value = zip;
-        option.text = zip;
+        option.value = localStorage.getItem('city' + i);
+        option.text = localStorage.getItem('city' + i);
         dropDown.appendChild(option);
     }
-}
+} 
+
 
 // if the Location button gets clicked starts the chain of checks for that
 function useLoc(){
@@ -117,10 +116,10 @@ function checkZip(zip){
         removePage('INVALID ZIP');
         return;
     }
-    getData(zip);
+    getData(zip, true);
 }
 // Gets the data from the API using ZIP code
-async function getData(zip){
+async function getData(zip, bool){
     let url = state.API.replace('[ZIPCODE]', zip);
     try {
         const response = await axios.get(url);
@@ -129,8 +128,13 @@ async function getData(zip){
         state.weatherInfo.location = response.data.name;
         state.weatherInfo.tempK = Math.round(response.data.main.temp);
         state.weatherInfo.img = response.data.weather[0].icon;
-        localStorage.setItem('city' + localStorage.length, zip);
-        appendSaved(false, zip);
+        if(bool){
+            localStorage.setItem('city' + localStorage.length, state.weatherInfo.location + ': ' + zip);
+            let option = document.createElement('option');
+            option.value = zip;
+            option.text = zip;
+            dropDown.appendChild(option);
+        }
         convertTemp();
         updatePage();
     } catch (error) {
@@ -188,14 +192,7 @@ function createHead(text, parent){
 
 function updatePage(){
     // Checking if any content is loaded in the "Weather" section and removes it
-    let dele = document.getElementById('errorCard');
-    if(dele != null){
-        dele.remove();
-    }
-    dele = document.getElementById('card');
-    if(dele != null){
-        dele.remove();
-    }
+    deletePage();
     // Creates the card and runs through the elements and appends them.
     let card = document.createElement('div');
     card.className = 'card d-flex justify-content-center text-center mt-3';
@@ -218,14 +215,7 @@ function updatePage(){
 // Will be called if the API calls fail, ZIP is invalid, or geolocation failure
 function removePage(errorMsg){
     // Checks if any cards are in the DOM and removes them
-    let dele = document.getElementById('card');
-    if(dele != null){
-        dele.remove();
-    }
-    dele = document.getElementById('errorCard');
-    if(dele != null){
-        dele.remove();
-    }
+    deletePage();
     // Creates the error card and puts it on the page
     let errorCard = document.createElement('div');
     errorCard.className = 'card d-flex justify-content-center text-center mt-3'
@@ -235,6 +225,16 @@ function removePage(errorMsg){
     htmlBody.appendChild(errorCard);
     createHead('ERROR', errorCard);
     createBox(errorMsg, errorCard);
+}
+function deletePage(){
+    let dele = document.getElementById('card');
+    if(dele != null){
+        dele.remove();
+    }
+    dele = document.getElementById('errorCard');
+    if(dele != null){
+        dele.remove();
+    }
 }
 // Changes the color the background to a certain color based on the icon
 // And Yes I just learned about gradients, GRAPHIC DESIGN IS MY PASSION MEME
