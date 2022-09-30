@@ -1,8 +1,9 @@
 const htmlBody = document.getElementById('main');
 // State is an object that holds API and eventaully the weather Data
 const state = {
-    API: 'https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=0df3bd48560ad03c51a4637c5db0548e',
-    APIloc: 'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=0df3bd48560ad03c51a4637c5db0548e',
+    APIKEY: "0df3bd48560ad03c51a4637c5db0548e",
+    zipUrl: `https://api.openweathermap.org/data/2.5/weather?zip=[ZIPCODE],us&appid=${state.APIKEY}`,
+    locAPI: `https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid=${state.APIKEY}`,
     weatherInfo : {
         tempK: 0,
         location: '',
@@ -125,11 +126,7 @@ async function getData(zip, bool){
     let url = state.API.replace('[ZIPCODE]', zip);
     try {
         const response = await axios.get(url);
-        state.weatherInfo.humid = response.data.main.humidity;
-        state.weatherInfo.descrtip = response.data.weather[0].description;
-        state.weatherInfo.location = response.data.name;
-        state.weatherInfo.tempK = Math.round(response.data.main.temp);
-        state.weatherInfo.img = response.data.weather[0].icon;
+        parseData(response);
         if(bool){
             localStorage.setItem('city' + localStorage.length, state.weatherInfo.location + ': ' + zip);
             let option = document.createElement('option');
@@ -149,16 +146,19 @@ async function getDataLoc(position){
     url = url.replace('{lon}', position.longitude);
     try {
         const response = await axios.get(url);
-        state.weatherInfo.humid = response.data.main.humidity;
-        state.weatherInfo.descrtip = response.data.weather[0].description;
-        state.weatherInfo.location = response.data.name;
-        state.weatherInfo.tempK = Math.round(response.data.main.temp);
-        state.weatherInfo.img = response.data.weather[0].icon;
+        parseData(response);
         convertTemp();
         updatePage();
     } catch (error) {
         removePage('LOCATION NOT SUPPORTED');
     }
+}
+function parseData(response){
+    state.weatherInfo.humid = response.data.main.humidity;
+    state.weatherInfo.descrtip = response.data.weather[0].description;
+    state.weatherInfo.location = response.data.name;
+    state.weatherInfo.tempK = Math.round(response.data.main.temp);
+    state.weatherInfo.img = response.data.weather[0].icon;
 }
 // Appends the html boxes under temperature and sets the particular style
 function addTemp(text, parent){
@@ -244,61 +244,50 @@ function editBack(condition){
     if(document.getElementById('card') != null){
         card = document.getElementById('card');
     }
-    // switch(condition){
-    //     case '01d': 
-    //     case '01n': 
-        
-    //         htmlBody.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
-    //         card.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
-    //         form.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
-    //         break;
-    // }
-    form = document.getElementById('form');
-    if(condition === '01d' || condition === '01n'){
-        htmlBody.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
-        card.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
-        form.style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+    let style;
+    let form = document.getElementById('form');
+    switch(condition){
+        case '01d': 
+        case '01n': 
+            style = 'background: radial-gradient(#87CEFA, #7FFFD4)';
+            break;
+    
+        case '02d':
+        case '02n':
+            style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
+            break;
+        case '03d':
+        case '03n':
+            style = 'background: radial-gradient(#808080, #E6E6FA)';
+            break;
+        case '04d':
+        case '04n':
+            style = 'background: radial-gradient(#778899, #696969)';
+            break;
+        case '09d':
+        case '09n':
+            style = 'background: radial-gradient(#0000CD, #7B68EE)';
+            break;
+        case '10d':
+        case '10n':
+            style = 'background: radial-gradient(#4682B4, #4169E1)';
+            break;
+        case '11d':
+        case '11n':
+            style = 'background: radial-gradient(#000080, #708090)';
+            break;
+        case '13d':
+        case '13n':
+            style = 'background-color: #FFFAFA';
+            break;
+        case '50d':
+        case '50n':
+            style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
+            break;
     }
-    if(condition === '02d' || condition === '02n'){
-        htmlBody.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
-        card.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
-        form.style = 'background: radial-gradient(#00BFFF, #2F4F4F)';
-    }
-    if(condition === '03d' || condition === '03n'){ 
-        htmlBody.style = 'background: radial-gradient(#808080, #E6E6FA)';
-        card.style = 'background: radial-gradient(#808080, #E6E6FA)';
-        form.style = 'background: radial-gradient(#808080, #E6E6FA)';
-    }
-    if(condition === '04d' || condition === '04n'){
-        htmlBody.style = 'background: radial-gradient(#778899, #696969)';
-        card.style = 'background: radial-gradient(#778899, #696969)';
-        form.style = 'background: radial-gradient(#778899, #696969)';
-    }
-    if(condition === '09d' || condition === '09n') { 
-        htmlBody.style = 'background: radial-gradient(#0000CD, #7B68EE)';
-        card.style = 'background: radial-gradient(#0000CD, #7B68EE)';
-        form.style = 'background: radial-gradient(#0000CD, #7B68EE)';
-    }
-    if(condition === '10d' || condition === '10n') {
-        htmlBody.style = 'background: radial-gradient(#4682B4, #4169E1)';
-        card.style = 'background: radial-gradient(#4682B4, #4169E1)';
-        form.style = 'background: radial-gradient(#4682B4, #4169E1)';
-    }
-    if(condition === '11d' || condition === '11n') {
-        htmlBody.style = 'background: radial-gradient(#000080, #708090)';
-        card.style = 'background: radial-gradient(#000080, #708090)';
-        form.style = 'background: radial-gradient(#000080, #708090)';
-    }
-    if(condition === '13d' || condition === '13n') {
-        htmlBody.style = 'background-color: #FFFAFA';
-        card.style = 'background-color: #FFFAFA';
-        form.style = 'background-color: #FFFAFA';
-    }
-    if(condition === '50d' || condition === '50n'){
-        htmlBody.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
-        card.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
-        form.style = 'background: radial-gradient(#B0C4DE, #40E0D0)';
-    }
+    htmlBody.style = style;
+    card.style = style;
+    form.style = style;
 }
 
 // Initialize the page and sets up the header 
