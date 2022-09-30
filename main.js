@@ -51,11 +51,43 @@ function initPage(){
     locBtn.addEventListener('click', () => {useLoc()});
     topRow.appendChild(locBtn);
     
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Use saved ZIP';
+    saveBtn.className = 'col-4 col-sm-2 btn btn-success';
+    saveBtn.addEventListener('click', () => {checkZip(dropDown.value)});
+    topRow.appendChild(saveBtn);
+    
+    const dropDown = document.createElement('select')
+    dropDown.id = 'dropDown';
+    dropDown.textContent = 'Saved ZIP Codes';
+    dropDown.className = 'form-select col-8'
+    dropDown.placeholder = 'Saved ZIP codes';
+    topRow.appendChild(dropDown);
+    appendSaved(true, 0);
+
 }
 // Converts the temperature from Kelvin to the other ones
 function convertTemp(){
     state.weatherInfo.tempC = Math.round(state.weatherInfo.tempK - 273.15);
     state.weatherInfo.tempF = Math.round((state.weatherInfo.tempK  - 273.15) * (9/5) + 32);
+}
+
+function appendSaved(bool, zip){
+    let dropDown = document.getElementById('dropDown');
+    // Will only run when Initiating the site
+    if(bool){
+        for(let i = 0; i < localStorage.length; i++){
+            let option = document.createElement('option');
+            option.value = localStorage.getItem('city' + i);
+            option.text = localStorage.getItem('city' + i);
+            dropDown.appendChild(option);
+        }
+    } else {
+        let option = document.createElement('option');
+        option.value = zip;
+        option.text = zip;
+        dropDown.appendChild(option);
+    }
 }
 
 // if the Location button gets clicked starts the chain of checks for that
@@ -97,6 +129,8 @@ async function getData(zip){
         state.weatherInfo.location = response.data.name;
         state.weatherInfo.tempK = Math.round(response.data.main.temp);
         state.weatherInfo.img = response.data.weather[0].icon;
+        localStorage.setItem('city' + localStorage.length, zip);
+        appendSaved(false, zip);
         convertTemp();
         updatePage();
     } catch (error) {
