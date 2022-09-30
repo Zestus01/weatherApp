@@ -114,6 +114,7 @@ function success(position){
 
 // Checks the zip code if a valid zip code. This allows some basic checks to avoid API calls
 function checkZip(zip){
+
     if(isNaN(zip) && zip > 99950 && zip < 9999){
         errorPage('INVALID ZIP');
         return;
